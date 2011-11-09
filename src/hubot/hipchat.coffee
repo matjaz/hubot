@@ -2,7 +2,7 @@ Robot        = require "../robot"
 HTTPS        = require "https"
 Wobot        = require("wobot").Bot
 
-class HipChat extends Robot
+class HipChat extends Robot.Adapter
   send: (user, strings...) ->
     console.log "Sending"
     for str in strings
@@ -18,7 +18,7 @@ class HipChat extends Robot
     @options =
       token:    process.env.HUBOT_HIPCHAT_TOKEN
       jid:      process.env.HUBOT_HIPCHAT_JID
-      name:     process.env.HUBOT_HIPCHAT_NAME or "#{self.name} Bot"
+      name:     process.env.HUBOT_HIPCHAT_NAME or "#{@robot.name} Bot"
       password: process.env.HUBOT_HIPCHAT_PASSWORD
       rooms:    process.env.HUBOT_HIPCHAT_ROOMS or "@All"
     
@@ -60,13 +60,13 @@ class HipChat extends Robot
 
     bot.onMessage (channel, from, message) ->
       author = name: from, reply_to: channel
-      hubot_msg = message.replace(mention, "#{self.name}: ")
+      hubot_msg = message.replace(mention, "#{self.robot.name}: ")
       self.receive new Robot.TextMessage(author, hubot_msg)
 
     bot.onPrivateMessage (from, message) =>
       user = self.userForId(from.match(/_(\d+)@/)[1])
       author = name: user.name, reply_to: from
-      self.receive new Robot.TextMessage(author, "#{self.name}: #{message}")
+      self.receive new Robot.TextMessage(author, "#{self.robot.name}: #{message}")
 
     bot.connect()
 
