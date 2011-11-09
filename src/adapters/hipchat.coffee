@@ -11,7 +11,7 @@ class HipChat extends Robot.Adapter
   reply: (user, strings...) ->
     console.log "Replying"
     for str in strings
-      @send user, "@#{user.name.toString().split(' ')[0]} #{str}"
+      @send user, "@#{user.name} #{str}"
 
   run: ->
     self = @
