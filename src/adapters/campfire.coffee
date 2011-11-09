@@ -2,17 +2,19 @@ Robot        = require "../robot"
 HTTPS        = require "https"
 EventEmitter = require("events").EventEmitter
 
-class Campfire extends Robot
+class Campfire extends Robot.Adapter
   send: (user, strings...) ->
-    for str in strings
-      @bot.Room(user.room).speak str, (err, data) ->
+    if strings.length > 0
+      @bot.Room(user.room).speak strings.shift(), (err, data) =>
         console.log "campfire error: #{err}" if err
+        @send user, strings...
 
   reply: (user, strings...) ->
-    @send user, "#{user.name}: #{str}" for str in strings
+    @send user, strings.map((str) -> "#{user.name}: #{str}")...
 
   run: ->
     self = @
+
     options =
       token:   process.env.HUBOT_CAMPFIRE_TOKEN
       rooms:   process.env.HUBOT_CAMPFIRE_ROOMS
@@ -24,6 +26,8 @@ class Campfire extends Robot
       bot.User user, (err, userData) ->
         if userData.user
           author = self.userForId(userData.user.id, userData.user)
+          self.robot.brain.data.users[userData.user.id].name = userData.user.name
+          self.robot.brain.data.users[userData.user.id].email_address = userData.user.email_address
           author.room = room
           callback id, created, room, user, body, author
 
@@ -187,8 +191,7 @@ class CampfireStreaming extends EventEmitter
         if response.statusCode >= 400
           switch response.statusCode
             when 401 then throw new Error("Invalid access token provided, campfire refused the authentication")
-            else console.log "campfire error: #{err}"
-
+            else console.log "campfire error: #{response.statusCode}"
 
         try
           callback null, JSON.parse(data)
