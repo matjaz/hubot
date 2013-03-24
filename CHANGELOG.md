@@ -1,3 +1,142 @@
+v2.4.8
+======
+
+* Exit on startup for a variety of critical failures.
+
+v2.3.4
+======
+
+* Add 'examples' and 'urls' to list of known documentation sections
+
+* Improve mustache results - marsam in #341
+
+v2.3.3
+======
+
+* Fix help parsing of javascript iles - ferlores in #322
+
+* Roles will correctly semicolon-delimit the list of roles if one (or more) roles contain a comma. - futuraprime in #327
+
+* Updated translations of supported languages as of 20120801 - sopel in #328
+
+* Escape brackets in html view of help - tombell, technicalpickles
+
+* More coffee-like translate.coffee - elmoeleven in #336
+
+* Fixed reference to when npm was included w/ node - technicalpickles in #347
+
+* Backwards-compatible help parsing, and tracking all documentation instead of just commands - technicalpickles
+
+v2.3.2
+======
+* New route `/hubot/help` to display command help - tombell
+
+* Role script fix - ferlores
+
+* Store connect server - tombell
+
+v2.3.0
+======
+* Extracted remaining classes into their own files - tombell
+
+**Note** this is a breaking change for adapters. Adapters are going to want to
+use the following code snippet for requiring classes from hubot.
+
+    {Adapter,Robot} = require 'hubot'
+
+* Update the formatting of documentation comments at the top of
+  scripts - technicalpickles
+
+* Update the parsing of the documentation comments - tombell
+
+v2.2.0
+======
+* Fixed keep alive ping, requires `HEROKU_URL` - tombell and jimeh
+
+* Updated dependency versions - tombell and jimeh
+
+v2.1.4
+======
+* Hubot now keeps himself alive due to Heroku's web processes shutting down
+  when idle - tombell
+
+* Hubot's image search is now defaulted to safe search - kylev
+
+* Hubot now emits a 'connected' event when he connects to the chosen
+  adapter - sbryant
+
+* Fix the roles.coffee not to respond to empty names - christierney
+
+v2.1.3 - The Heat Stroke Release
+================================
+* Hubot now has a web interface and supports connect middleware, examples in
+  httpd.coffee - atmos / tombell
+
+    module.exports = (robot) ->
+      robot.router.get "/hubot/version", (req, res) ->
+        res.end robot.version
+
+* Add a catchAll callback that handles responses that match nothing
+  else - titanous / ejfinnerman
+
+    module.exports = (robot) ->
+      robot.catchAll (msg) ->
+        router.get "/hubot/version", (req, res) ->
+
+v2.1.2
+======
+* Update behaviour of finishing further execution of listeners
+* Scripts are now loaded in the following order
+  * Scripts defined in `./hubot-scripts.json` are loaded in order
+  * Scripts are loaded alphabetically from `/scripts`
+
+v2.1.1
+======
+* The hwhoops release, finish/done behavior is handled elsewhere
+
+v2.1.0
+======
+* Introduce Response.finish() to indicate that a message should not be
+  passed on to any other listeners
+* Scripts are evaluated in the following order
+  * `./scripts` is loaded alphabetically
+  * The contents of `./hubot-scripts.json` is loaded in order
+
+    module.exports = (robot) ->
+      robot.respond /\s*yo\s*\\?/i, (msg) ->
+        msg.reply "Yo!"
+        msg.finish()
+
+v2.0.7
+======
+* Update topic and logger scoping fixups - Horace Ko
+* Don't exit the process if listening to a room is denied
+
+v2.0.6
+======
+* Don't kill all username looks if some users don't have name attribute
+
+v2.0.5
+======
+* All adapters have been removed except for shell and campfire
+* Better win32 compatability
+* Campfire reconnects on streaming errors on a per-room basis
+
+v2.0.0
+======
+* Major adapter overhaul, they're now external - Tom Bell
+* Shell adapter now functions like a REPL - Tom Bell
+* Improved logging using log.js - Tom Bell
+* Search help commands - Gabriel Horner
+* Improvements to roles.coffee - Daniel Schauenberg
+
+Upgrading
+---------
+If you are not using the Campfire or Shell adapters please be aware before
+upgrading that adapters have been moved out of the code of hubot and you should
+install the hubot adapters from npm when people make them available. Until your
+adapter is available you may wish to remain on v1.1.11.
+
 v1.1.11
 =======
 * support self-signed SSL certs for IRC - Ville Lautanala <lautis@gmail.com>
@@ -90,3 +229,4 @@ v1.0.3
 * Ensure people are running node 0.4.x - Corey Donohoe <atmos@atmos.org>
 * Doc fixups - Aitor García Rey <aitor@linkingpaths.com>
 * Twilio adapter support - Tom Bell <tomb@tombell.org.uk>
+

@@ -1,30 +1,46 @@
-Robot = require '../robot'
+Readline = require 'readline'
 
-class Shell extends Robot.Adapter
-  send: (user, strings...) ->
-    for str in strings
-      console.log str
+Robot         = require '../robot'
+Adapter       = require '../adapter'
+{TextMessage} = require '../message'
 
-  reply: (user, strings...) ->
-    for str in strings
-      @send user, "#{user.name}: #{str}"
+class Shell extends Adapter
+  send: (envelope, strings...) ->
+    unless process.platform is 'win32'
+      console.log "\x1b[01;32m#{str}\x1b[0m" for str in strings
+    else
+      console.log "#{str}" for str in strings
+    @repl.prompt()
+
+  reply: (envelope, strings...) ->
+    strings = strings.map (s) -> "#{envelope.user.name}: #{s}"
+    @send envelope.user, strings...
 
   run: ->
-    console.log "Hubot: the Shell."
+    self = @
+    stdin = process.openStdin()
+    stdout = process.stdout
 
-    user = @userForId('1', { name: "Shell" })
+    process.on 'uncaughtException', (err) =>
+      @robot.logger.error err.stack
 
-    process.stdin.resume()
-    process.stdin.on 'data', (txt) =>
-      txt.toString().split("\n").forEach (line) =>
-        return if line.length is 0
-        @receive new Robot.TextMessage user, line
+    @repl = Readline.createInterface stdin, stdout, null
 
-    setTimeout =>
-      user   = @userForId('1', { name: "Shell" })
-      atmos  = @userForId('2', { name: "atmos" })
-      holman = @userForId('3', { name: "Zach Holman" })
-    , 3000
+    @repl.on 'close', =>
+      stdin.destroy()
+      @robot.shutdown()
+      process.exit 0
 
-module.exports = Shell
+    @repl.on 'line', (buffer) =>
+      @repl.close() if buffer.toLowerCase() is 'exit'
+      @repl.prompt()
+      user = @userForId '1', name: 'Shell', room: 'Shell'
+      @receive new TextMessage user, buffer, 'messageId'
 
+    self.emit 'connected'
+
+    @repl.setPrompt "#{@robot.name}> "
+    @repl.prompt()
+
+exports.use = (robot) ->
+  new Shell robot
